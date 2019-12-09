@@ -38,6 +38,7 @@ if [[ "$1" == apache2* ]] || [ "$1" == php-fpm ]; then
 
   # if we have a clean repo then install
   if ! [ -d vendor ]; then
+    echo "Run composer install on site"
     composer install
   fi
 
@@ -46,6 +47,7 @@ if [[ "$1" == apache2* ]] || [ "$1" == php-fpm ]; then
 
   # Make sure we have the right permissions
   if [ -f /root/.ssh/id_rsa ]; then
+    echo "chmod id_rsa file"
     chmod 0600 /root/.ssh/id_rsa
   fi
 
@@ -159,20 +161,24 @@ export OCTOBER_DB_DRIVER OCTOBER_DB_HOST OCTOBER_DB_PORT OCTOBER_DB_USER OCTOBER
 
 
 # Bring up the initial OctoberCMS database
+echo "php artisan october:up"
 php artisan october:up
 
 # Update OctoberCMS to the latest version
+echo "php artisan october:update"
 php artisan october:update
 
 # Install plugins if they are identified
 IFS=';' read -ra OCTOBERPLUGIN <<< "${OCTOBER_PLUGINS:-}"
 for i in "${OCTOBERPLUGIN[@]}"; do
+    echo "php artisan plugin:install $i"
     php artisan plugin:install $i
 done
 
 # Install themes if they are identified
 IFS=';' read -ra THEME <<< "${OCTOBER_THEMES:-}"
 for i in "${THEME[@]}"; do
+  echo "php artisan theme:install $i"
     php artisan theme:install $i
 done
 
@@ -191,7 +197,7 @@ for i in "${PLUGIN[@]}"; do
 
   # Only clone if it doesn't already exist
   if ! [ -e plugins/$namespace/$reponame ]; then
-    echo "plugin1 repo (plugins/ $namespace / $reponame ) doesn't exist!"
+    echo "git clone $i $namespace/$reponame"
     (cd plugins && git clone $i $namespace/$reponame)
   fi
 done
@@ -215,11 +221,12 @@ for i in "${PLUGINFOLDER[@]}"; do
 
   # Only clone if it doesn't already exist
   if ! [ -e plugins/$reponame ]; then
-    echo "PLUGIN2 repo (plugins/ $reponame ) doesn't exist!"
+    echo "PLUGIN2: git clone $i"
     (cd plugins && git clone $i)
 
     for dir in plugins/$reponame/*; do
       echo "In $dir running composer install"
+      echo "php artisan plugin:refresh $basename.$dir"
       (cd "$dir" && composer install && php artisan plugin:refresh $basename.$dir);
     done
 
@@ -244,6 +251,7 @@ for i in "${THEME[@]}"; do
   # Only clone if it doesn't already exist
   if ! [ -e themes/$reponame ]; then
     echo "themes repo doesn't exist!"
+    echo "git clone $i"
     (cd themes && git clone $i)
     # (cd themes/$reponame && composer install)
     (cd themes/$reponame && npm install && grunt)
