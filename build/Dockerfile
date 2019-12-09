@@ -25,25 +25,25 @@ RUN a2enmod rewrite expires
 
 VOLUME /var/www/html
 
+# Install composer
 RUN curl -sS https://getcomposer.org/installer | php \
         && mv composer.phar /usr/local/bin/composer
 
-#RUN curl -sL https://deb.nodesource.com/setup_8.x | bash \
-#    && apt-get install nodejs -yq
+# Install nodejs
 RUN curl -sL https://deb.nodesource.com/setup_11.x  | bash -
 RUN apt-get -y install nodejs
 
+# Install grunt
 RUN npm install -g grunt-cli
 
-RUN cd /usr/src \		
-      && git clone https://github.com/octobercms/october.git \		
-      && cd october \		
-      && composer install --no-interaction --prefer-dist
+# Install octobercms
+RUN cd /usr/src \
+        && git clone https://github.com/octobercms/october.git \
+        && cd october \
+        && composer install --no-interaction --prefer-dist
 
 # TODO: Use sed to set configuration settings
 COPY config/*.php /usr/src/october/config/
-
-COPY grunt/* /usr/src/october/
 
 RUN chown -R "www-data:www-data" /usr/src/october
 
