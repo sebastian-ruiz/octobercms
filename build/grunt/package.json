@@ -1,0 +1,9 @@
+{
+  "name": "schuitsite",
+  "version": "0.1.0",
+  "dependencies": {
+    "grunt": "^1.0.0",
+    "node-sass": "^4.0.0",
+    "grunt-subgrunt": "^1.2.0"
+  }
+}
