@@ -45,7 +45,7 @@ RUN cd /usr/src \
 # TODO: Use sed to set configuration settings
 COPY config/*.php /usr/src/october/config/
 
-RUN chown -R "www-data:www-data" /usr/src/october
+# RUN chown -R "www-data:www-data" /usr/src/october
 
 COPY docker-entrypoint.sh /usr/local/bin/
 RUN ln -s usr/local/bin/docker-entrypoint.sh /entrypoint.sh # backwards compat

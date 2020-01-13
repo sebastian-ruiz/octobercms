@@ -5,8 +5,8 @@ if [[ "$1" == apache2* ]] || [ "$1" == php-fpm ]; then
   if [ "$(id -u)" = '0' ]; then
     case "$1" in
       apache2*)
-        user="${APACHE_RUN_USER:-www-data}"
-        group="${APACHE_RUN_GROUP:-www-data}"
+        user="${UID:-www-data}"
+        group="${GID:-www-data}"
         ;;
       *) # php-fpm
         user='www-data'
@@ -34,6 +34,10 @@ if [[ "$1" == apache2* ]] || [ "$1" == php-fpm ]; then
             . | tar --extract --file -
 
           echo >&2 "Complete! OctoberCMS has been successfully copied to $(pwd)"
+
+          echo "user: $user group: $group"
+          echo "current directory: $(pwd)"
+          chown -R $user:$group . 
   fi
 
   # if we have a clean repo then install
@@ -198,7 +202,7 @@ for i in "${PLUGIN[@]}"; do
   # Only clone if it doesn't already exist
   if ! [ -e plugins/$namespace/$reponame ]; then
     echo "git clone $i $namespace/$reponame"
-    (cd plugins && git clone $i $namespace/$reponame)
+    (cd plugins && git clone $i $namespace/$reponame && chown -R $user:$group $namespace)
   fi
 done
 
@@ -222,7 +226,7 @@ for i in "${PLUGINFOLDER[@]}"; do
   # Only clone if it doesn't already exist
   if ! [ -e plugins/$reponame ]; then
     echo "PLUGIN2: git clone $i"
-    (cd plugins && git clone $i)
+    (cd plugins && git clone $i && chown -R $user:$group $reponame)
 
     for dir in plugins/$reponame/*; do
       echo "In $dir running composer install"
@@ -252,15 +256,17 @@ for i in "${THEME[@]}"; do
   if ! [ -e themes/$reponame ]; then
     echo "themes repo doesn't exist!"
     echo "git clone $i"
-    (cd themes && git clone $i)
+    (cd themes && git clone $i && chown -R $user:$group $reponame)
     # (cd themes/$reponame && composer install)
     (cd themes/$reponame && npm install && grunt)
 
   fi
 done
 
+chown -R $user:$group . 
 
-echo "chown directory $APACHE_RUN_USER : $APACHE_RUN_GROUP"
+
+# echo "chown directory $APACHE_RUN_USER : $APACHE_RUN_GROUP"
 # chown -R $APACHE_RUN_USER:$APACHE_RUN_GROUP /var/www/html
 
 # END CLONE THEMES AND PLUGINS

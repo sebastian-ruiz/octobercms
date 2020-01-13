@@ -2,8 +2,8 @@ version: '3'
 services:
   web:
     container_name: blauweschuit
-    # build: ./build
-    image: sebastianruiz/octobercms:latest
+    build: ./build
+    # image: sebastianruiz/octobercms:latest
     expose:
       - "80"
     sysctls:
@@ -30,6 +30,10 @@ services:
       - GIT_HOSTS=${GIT_HOSTS}
       - GIT_THEMES=${GIT_THEMES}
       - GIT_PLUGINS_FOLDER=${GIT_PLUGINS_FOLDER}
+      - APACHE_RUN_USER=#${UID}
+      - APACHE_RUN_GROUP=#${GID}
+      - UID=${UID}
+      - GID=${GID}
     networks:
       - web
       - internal
