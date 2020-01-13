@@ -1,6 +1,12 @@
 #!/bin/bash
 # set -euo pipefail # things are crashing, but I want to continue... Seb
 
+wait_for_db() {
+  while ! nc -z $OCTOBER_DB_HOST $OCTOBER_DB_PORT; do   
+    sleep 0.1 # wait for 1/10 of the second before check again
+  done
+}
+
 if [[ "$1" == apache2* ]] || [ "$1" == php-fpm ]; then
   if [ "$(id -u)" = '0' ]; then
     case "$1" in
@@ -23,7 +29,7 @@ if [[ "$1" == apache2* ]] || [ "$1" == php-fpm ]; then
           echo >&2 "OctoberCMS not found in $(pwd) - copying now..."
           if [ "$(ls -A)" ]; then
                   echo >&2 "WARNING: $(pwd) is not empty - press Ctrl+C now if this is an error!"
-                  ( set -x; ls -A; sleep 10 )
+                  ( set -x; ls -A; sleep 10; wait_for_db )
           fi
 
           tar --create \
