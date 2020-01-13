@@ -3,7 +3,8 @@
 
 wait_for_db() {
   while ! nc -z $OCTOBER_DB_HOST $OCTOBER_DB_PORT; do   
-    sleep 0.1 # wait for 1/10 of the second before check again
+    echo "Waiting for database to come online"
+    sleep 5 # wait for 1/10 of the second before check again
   done
 }
 
@@ -29,7 +30,7 @@ if [[ "$1" == apache2* ]] || [ "$1" == php-fpm ]; then
           echo >&2 "OctoberCMS not found in $(pwd) - copying now..."
           if [ "$(ls -A)" ]; then
                   echo >&2 "WARNING: $(pwd) is not empty - press Ctrl+C now if this is an error!"
-                  ( set -x; ls -A; sleep 10; wait_for_db )
+                  ( ls -A; sleep 10; wait_for_db )
           fi
 
           tar --create \
@@ -66,14 +67,6 @@ if [[ "$1" == apache2* ]] || [ "$1" == php-fpm ]; then
   for i in "${KEY[@]}"; do
       ssh-keyscan -H $i >> /root/.ssh/known_hosts
   done
-
-  # debugging
-  echo "!!!!!!!!!!!!!!!User is:"
-  id -u
-
-  # git clone plugins and themes was here
-
-  # chown -R $APACHE_RUN_USER:$APACHE_RUN_GROUP /var/www/html
 
 : ${OCTOBER_DB_DRIVER:='sqlite'}
 
@@ -203,7 +196,7 @@ for i in "${PLUGIN[@]}"; do
   hostname="$(basename "${url_without_suffix%/${reponame}}")"
   namespace="${hostname##*:}"
 
-  echo "PLUGIN1: $reponame $hostname $namespace"
+  echo "PLUGIN: $reponame $hostname $namespace"
 
   # Only clone if it doesn't already exist
   if ! [ -e plugins/$namespace/$reponame ]; then
@@ -231,7 +224,7 @@ for i in "${PLUGINFOLDER[@]}"; do
 
   # Only clone if it doesn't already exist
   if ! [ -e plugins/$reponame ]; then
-    echo "PLUGIN2: git clone $i"
+    echo "PLUGIN (cloned plugin folder): git clone $i"
     (cd plugins && git clone $i && chown -R $user:$group $reponame)
 
     for dir in plugins/$reponame/*; do
@@ -260,7 +253,7 @@ for i in "${THEME[@]}"; do
 
   # Only clone if it doesn't already exist
   if ! [ -e themes/$reponame ]; then
-    echo "themes repo doesn't exist!"
+    echo "Theme repo $reponame doesn't exist yet, cloning..."
     echo "git clone $i"
     (cd themes && git clone $i && chown -R $user:$group $reponame)
     # (cd themes/$reponame && composer install)
@@ -271,21 +264,10 @@ done
 
 chown -R $user:$group . 
 
-
-# echo "chown directory $APACHE_RUN_USER : $APACHE_RUN_GROUP"
-# chown -R $APACHE_RUN_USER:$APACHE_RUN_GROUP /var/www/html
-
 # END CLONE THEMES AND PLUGINS
-
 
 # Pull latest code from all plugin and theme git repos
 # php artisan october:util git pull
-
-
-
-# One last chown for good measure
-# chown -R $user:$group /var/www/html
-
 
 # added by Seb
 # composer update
@@ -295,7 +277,6 @@ php artisan october:up
 # we need npm for grunt
 # npm install
 # grunt
-
 
 
 fi

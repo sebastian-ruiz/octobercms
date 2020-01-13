@@ -62,6 +62,8 @@ RUN ln -s usr/local/bin/docker-entrypoint.sh /entrypoint.sh # backwards compat
 
 #USER october
 
+ENV OCTOBER_APP_LOG=syslog
+
 # ENTRYPOINT resets CMD
 ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["apache2-foreground"]
