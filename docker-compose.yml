@@ -1,13 +1,14 @@
 version: '3'
 services:
   web:
-    container_name: octobercms
-    build: ./build
-    ports:
-      - "${APP_PORT}:80"
+    container_name: blauweschuit
+    # build: ./build
+    image: sebastianruiz/octobercms:latest
+    expose:
+      - "80"
+    sysctls:
+      - net.ipv4.ip_unprivileged_port_start=0
     restart: unless-stopped
-    networks:
-      - internal
     depends_on:
       - mysql
     volumes:
@@ -15,6 +16,8 @@ services:
       - ./data/themes:/var/www/html/themes
       - ${SSH_PRIVATE_KEY}:/root/.ssh/id_rsa
     environment:
+      - OCTOBER_APP_URL=https://${DOMAIN}
+      - OCTOBER_CMS_LINK_POLICY=secure
       - OCTOBER_PLUGINS=RainLab.Blog;RainLab.Pages;RainLab.User;ToughDeveloper.ImageResizer
       - OCTOBER_CMS_ACTIVE_THEME=${ACTIVE_THEME}
       - OCTOBER_DB_DRIVER=mysql
@@ -27,9 +30,19 @@ services:
       - GIT_HOSTS=${GIT_HOSTS}
       - GIT_THEMES=${GIT_THEMES}
       - GIT_PLUGINS_FOLDER=${GIT_PLUGINS_FOLDER}
+    networks:
+      - web
+      - internal
+    # labels:
+    #   - "traefik.backend=october"
+    #   - "traefik.docker.network=web"
+    #   - "traefik.enable=true"
+    #   - "traefik.frontend.rule=Host:${DOMAIN}"
+    #   - "traefik.port=80"
+    #   - "traefik.frontend.auth.forward.address=http://forward-auth:4181"
 
   mysql:
-    container_name: octobercms_mysql
+    container_name: blauweschuit_mysql
     image: "mariadb"
     ports:
       - "${MYSQL_PORT}:3306"
@@ -41,4 +54,6 @@ services:
       - internal
 
 networks:
-  internal:
+  internal:    
+  web:
+    external: true
