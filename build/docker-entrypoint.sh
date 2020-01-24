@@ -69,6 +69,7 @@ if [[ "$1" == apache2* ]] || [ "$1" == php-fpm ]; then
       ssh-keyscan -H $i >> /root/.ssh/known_hosts
   done
 
+
 : ${OCTOBER_DB_DRIVER:='sqlite'}
 
   # If we don't need a database we can bail here
@@ -229,9 +230,10 @@ for i in "${PLUGINFOLDER[@]}"; do
     (cd plugins && git clone $i && chown -R $user:$group $reponame)
 
     for dir in plugins/$reponame/*; do
+      mkdir -p /super_vendor/$dir
+      ln -s /super_vendor/$dir $dir/vendor
       echo "In $dir running composer install"
-      echo "php artisan plugin:refresh $basename.$dir"
-      (cd "$dir" && composer install && php artisan plugin:refresh $basename.$dir);
+      (cd "$dir" && composer install);
     done
 
     
@@ -257,27 +259,17 @@ for i in "${THEME[@]}"; do
     echo "Theme repo $reponame doesn't exist yet, cloning..."
     echo "git clone $i"
     (cd themes && git clone $i && chown -R $user:$group $reponame)
-    # (cd themes/$reponame && composer install)
-    (cd themes/$reponame && npm install && grunt)
 
   fi
 done
 
+# npm run build
+run_npm_build.sh
+
+
 chown -R $user:$group . 
 
-# END CLONE THEMES AND PLUGINS
-
-# Pull latest code from all plugin and theme git repos
-# php artisan october:util git pull
-
-# added by Seb
-# composer update
-
 php artisan october:up
-
-# we need npm for grunt
-# npm install
-# grunt
 
 
 fi

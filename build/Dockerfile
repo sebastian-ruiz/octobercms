@@ -33,9 +33,6 @@ RUN curl -sS https://getcomposer.org/installer | php \
 RUN curl -sL https://deb.nodesource.com/setup_11.x  | bash -
 RUN apt-get -y install nodejs
 
-# Install grunt
-RUN npm install -g grunt-cli
-
 # Install octobercms
 RUN cd /usr/src \
         && git clone https://github.com/octobercms/october.git \
@@ -46,6 +43,9 @@ RUN cd /usr/src \
 COPY config/*.php /usr/src/october/config/
 
 # RUN chown -R "www-data:www-data" /usr/src/october
+
+COPY run_npm_build.sh /usr/local/bin/
+RUN ln -s usr/local/bin/run_npm_build.sh /run_npm_build.sh # backwards compat
 
 COPY docker-entrypoint.sh /usr/local/bin/
 RUN ln -s usr/local/bin/docker-entrypoint.sh /entrypoint.sh # backwards compat
