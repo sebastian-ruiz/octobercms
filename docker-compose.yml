@@ -14,11 +14,11 @@ services:
     volumes:
       - ./data/plugins:/var/www/html/plugins
       - ./data/themes:/var/www/html/themes
-      - ${SSH_PRIVATE_KEY}:/root/.ssh/id_rsa
+      - ${SSH_PRIVATE_KEY}:/root/.ssh_temp/id_rsa:ro
     environment:
       - OCTOBER_APP_URL=https://${DOMAIN}
       - OCTOBER_CMS_LINK_POLICY=secure
-      - OCTOBER_PLUGINS=RainLab.Blog;RainLab.Pages;RainLab.User;ToughDeveloper.ImageResizer
+      - OCTOBER_PLUGINS=RainLab.Blog;RainLab.Pages;RainLab.User;ToughDeveloper.ImageResizer;KurtJensen.Passage
       - OCTOBER_CMS_ACTIVE_THEME=${ACTIVE_THEME}
       - OCTOBER_DB_DRIVER=mysql
       - OCTOBER_DB_HOST=mysql
@@ -37,13 +37,13 @@ services:
     networks:
       - web
       - internal
-    # labels:
-    #   - "traefik.backend=october"
-    #   - "traefik.docker.network=web"
-    #   - "traefik.enable=true"
-    #   - "traefik.frontend.rule=Host:${DOMAIN}"
-    #   - "traefik.port=80"
-    #   - "traefik.frontend.auth.forward.address=http://forward-auth:4181"
+    labels:
+      - "traefik.backend=october"
+      - "traefik.docker.network=web"
+      - "traefik.enable=true"
+      - "traefik.frontend.rule=Host:${DOMAIN}"
+      - "traefik.port=80"
+      - "traefik.frontend.auth.forward.address=http://forward-auth:4181"
 
   mysql:
     container_name: blauweschuit_mysql

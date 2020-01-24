@@ -57,9 +57,10 @@ if [[ "$1" == apache2* ]] || [ "$1" == php-fpm ]; then
   php artisan key:generate
 
   # Make sure we have the right permissions
-  if [ -f /root/.ssh/id_rsa ]; then
-    echo "chmod id_rsa file"
-    chmod 0600 /root/.ssh/id_rsa
+  if [ -f /root/.ssh_temp/id_rsa ]; then
+    eval $(ssh-agent -s)
+    ssh-add - <<< `cat /root/.ssh_temp/id_rsa`
+    mkdir -p /root/.ssh
   fi
 
   # Add git host keys to known hosts
