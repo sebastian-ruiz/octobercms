@@ -2,8 +2,8 @@ version: '3'
 services:
   web:
     container_name: blauweschuit
-    build: ./build
-    # image: sebastianruiz/octobercms:latest
+    # build: ./build
+    image: sebastianruiz/octobercms:latest
     expose:
       - "80"
     sysctls:
@@ -61,3 +61,4 @@ networks:
   internal:    
   web:
     external: true
+
