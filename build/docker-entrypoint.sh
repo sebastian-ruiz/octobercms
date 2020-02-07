@@ -56,18 +56,20 @@ if [[ "$1" == apache2* ]] || [ "$1" == php-fpm ]; then
   # Generate random key for laravel if it's not specified
   php artisan key:generate
 
-  # Make sure we have the right permissions
-  if [ -f /root/.ssh_temp/id_rsa ]; then
-    eval $(ssh-agent -s)
-    ssh-add - <<< `cat /root/.ssh_temp/id_rsa`
-    mkdir -p /root/.ssh
-  fi
+  # make .ssh directory if it doesn't exit already
+  mkdir -p /root/.ssh
 
   # Add git host keys to known hosts
   IFS=';' read -ra KEY <<< "${GIT_HOSTS:-}"
   for i in "${KEY[@]}"; do
       ssh-keyscan -H $i >> /root/.ssh/known_hosts
   done
+
+  # Make sure we have the right permissions
+  if [ -f /root/.ssh_temp/id_rsa ]; then
+    eval $(ssh-agent -s)
+    ssh-add - <<< `cat /root/.ssh_temp/id_rsa`
+  fi
 
 
 : ${OCTOBER_DB_DRIVER:='sqlite'}
