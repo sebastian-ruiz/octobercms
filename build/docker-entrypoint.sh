@@ -234,8 +234,6 @@ for i in "${PLUGINFOLDER[@]}"; do
     (cd plugins && git clone $i && chown -R $user:$group $reponame)
 
     for dir in plugins/$reponame/*; do
-      mkdir -p /super_vendor/$dir
-      ln -s /super_vendor/$dir $dir/vendor
       echo "In $dir running composer install"
       (cd "$dir" && composer install);
     done
