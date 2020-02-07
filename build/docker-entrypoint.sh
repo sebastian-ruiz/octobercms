@@ -60,9 +60,11 @@ if [[ "$1" == apache2* ]] || [ "$1" == php-fpm ]; then
   mkdir -p /root/.ssh
 
   # Add git host keys to known hosts
+  echo "Add ssh keys to known hosts"
   IFS=';' read -ra KEY <<< "${GIT_HOSTS:-}"
   for i in "${KEY[@]}"; do
       ssh-keyscan -H $i >> /root/.ssh/known_hosts
+      echo "added $i to known_hosts"
   done
 
   # Make sure we have the right permissions
