@@ -233,11 +233,12 @@ for i in "${PLUGINFOLDER[@]}"; do
     echo "PLUGIN (cloned plugin folder): git clone $i"
     (cd plugins && git clone $i && chown -R $user:$group $reponame)
 
-    for dir in plugins/$reponame/*; do
-      echo "In $dir running composer install"
-      (cd "$dir" && composer install);
-    done
-
+    # !!! composer install should only be run in the root directory !!!
+    #
+    # for dir in plugins/$reponame/*; do
+    #   echo "In $dir running composer install"
+    #   (cd "$dir" && composer install);
+    # done
     
   fi
 done
