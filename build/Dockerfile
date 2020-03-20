@@ -37,6 +37,7 @@ RUN apt-get -y install nodejs
 RUN cd /usr/src \
         && git clone https://github.com/octobercms/october.git \
         && cd october \
+        && git checkout v1.0.464 \
         && composer install --no-interaction --prefer-dist
 
 # TODO: Use sed to set configuration settings
